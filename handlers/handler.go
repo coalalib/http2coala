@@ -22,6 +22,7 @@ func encodeFormValues(data url.Values) string {
 }
 
 func handler(w http.ResponseWriter, r *http.Request, gumAddr, requestURI string) {
+	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case "GET":
 		rsp, err := utils.GetCoala(gumAddr, requestURI+"?"+r.URL.RawQuery)
@@ -43,8 +44,9 @@ func handler(w http.ResponseWriter, r *http.Request, gumAddr, requestURI string)
 
 		// Получение списка параметров POST
 		postParams := r.PostForm
+		_ = postParams
 
-		rsp, err := utils.PostCoala(gumAddr, requestURI+"?"+encodeFormValues(postParams), nil)
+		rsp, err := utils.PostCoala(gumAddr, requestURI+"?"+r.URL.RawQuery, nil)
 
 		if err != nil {
 			log.Println("Error send coala: ", err)
@@ -52,7 +54,16 @@ func handler(w http.ResponseWriter, r *http.Request, gumAddr, requestURI string)
 		}
 
 		w.Write(rsp.Body)
-		log.Println("Success")
+
+	case "DELETE":
+		rsp, err := utils.DeleteCoala(gumAddr, requestURI+"?"+r.URL.RawQuery, nil)
+
+		if err != nil {
+			log.Println("Error send coala: ", err)
+			return
+		}
+
+		w.Write(rsp.Body)
 
 	// case "POST":
 	// 	// Парсинг параметров формы POST

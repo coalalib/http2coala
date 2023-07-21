@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -8,8 +10,12 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/coala/", handlers.GumHandler)
-	http.HandleFunc("/cid/", handlers.CidHandler)
+	port := flag.Int("port", 8080, "Port number to listen on")
+	flag.Parse()
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.HandleFunc("/", handlers.Handler)
+
+	addr := fmt.Sprintf(":%d", *port)
+	log.Printf("Starting server on port %d...\n", *port)
+	log.Fatal(http.ListenAndServe(addr, nil))
 }
